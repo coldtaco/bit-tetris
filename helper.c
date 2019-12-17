@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "helper.h"
+#include <string.h>
 
 short** createArray(int m, int n)
 {
@@ -31,94 +32,96 @@ short** setArray(short** donor, short** acceptor){
     return acceptor;
 }
 
-int* orientation(int rotation, int x, int piece){
+short* orientation(short rotation, short x, short piece){
+    printf("piece = %d, orientation = %d\n",piece,rotation);
     //{0 : "I", 1 : "O", 2 : "T", 3 : "J", 4 : "L", 5 : "S", 6 : "Z"}
-   int* coords = malloc(100);
+    static short coords[6] = {0,0,0,0,0,0};
     switch(piece){
         case 0:
             switch(rotation){
                 case 0:
-                    coords = (int[]) {4,1,0x1,0x1,0x1,0x1};
+                    memcpy(coords, (short[]){4,1,0x1,0x1,0x1,0x1}, sizeof(coords));
                     break;
                 case 1:
-                    coords = (int[]) {1,4,0xf};
+                    memcpy(coords, (short[]){1,4,0xf}, sizeof(coords));
                     break;
             }
             break;
         case 1:
-            coords = (int[]) {2,2,0x5,0x5};
+            memcpy(coords, (short[]){2,2,0x3,0x3}, sizeof(coords));
             break;
         case 2:
             switch(rotation){
                 case 0:
-                    coords = (int[]) {2,3,0x7,0x2};
+                    memcpy(coords, (short[]){2,3,0x7,0x2}, sizeof(coords));
                     break;
                 case 1:
-                    coords = (int[]) {3,2,0x1,0x3,0x1};
+                    memcpy(coords, (short[]){3,2,0x1,0x3,0x1}, sizeof(coords));
                     break;
                 case 2:
-                    coords = (int[]) {2,3,0x2,0x7};
+                    memcpy(coords, (short[]){2,3,0x2,0x7}, sizeof(coords));
                     break;
                 case 3:
-                    coords = (int[]) {3,2,0x2,0x3,0x2};
+                    memcpy(coords, (short[]){3,2,0x2,0x3,0x2}, sizeof(coords));
                     break;
             }
             break;
         case 3:
             switch(rotation){
                 case 0:
-                    coords = (int[]) {3,2,0x1,0x1,0x3};
+                    memcpy(coords, (short[]){3,2,0x1,0x1,0x3}, sizeof(coords));
                     break;
                 case 1:
-                    coords = (int[]) {2,3,0x4,0x7};
+                    memcpy(coords, (short[]){2,3,0x4,0x7}, sizeof(coords));
                     break;
                 case 2:
-                    coords = (int[]) {3,2,0x3,0x2,0x2};
+                    memcpy(coords, (short[]){3,2,0x3,0x2,0x2}, sizeof(coords));
                     break;
                 case 3:
-                    coords = (int[]) {2,3,0x7,0x1};
+                    memcpy(coords, (short[]){2,3,0x7,0x1}, sizeof(coords));
                     break;
             }
             break;
         case 4:
             switch(rotation){
                 case 0:
-                    coords = (int[]) {3,2,0x2,0x2,0x3};
+                    memcpy(coords, (short[]){3,2,0x2,0x2,0x3}, sizeof(coords));
                     break;
                 case 1:
-                    coords = (int[]) {2,3,0x7,0x4};
+                    memcpy(coords, (short[]){2,3,0x7,0x4}, sizeof(coords));
                     break;
                 case 2:
-                    coords = (int[]) {3,2,0x3,0x1,0x1};
+                    memcpy(coords, (short[]){3,2,0x3,0x1,0x1}, sizeof(coords));
                     break;
                 case 3:
-                    coords = (int[]) {2,3,0x1,0x7};
+                    memcpy(coords, (short[]){2,3,0x1,0x7}, sizeof(coords));
                     break;
             }
             break;
         case 5:
             switch(rotation){
                 case 0:
-                    coords = (int[]) {2,3,0x3,0x6};
+                    memcpy(coords, (short[]){2,3,0x3,0x6}, sizeof(coords));
                     break;
                 case 1:
-                    coords = (int[]) {3,2,0x2,0x3,0x1};
+                    memcpy(coords, (short[]){3,2,0x2,0x3,0x1}, sizeof(coords));
                     break;
             }
+            break;
         case 6:
             switch(rotation){
                 case 0:
-                    coords = (int[]) {2,3,0x6,0x3};
+                    memcpy(coords, (short[]){2,3,0x6,0x3}, sizeof(coords));
                     break;
                 case 1:
-                    coords = (int[]) {3,2,0x1,0x3,0x2};
+                    memcpy(coords, (short[]){3,2,0x1,0x3,0x2}, sizeof(coords));
                     break;
             }
     }
     return coords;
 }
 
-char* toString(int s){
+char* toString(short s){
     char* string = malloc(11*sizeof(char));
     int index = 512;//2^9
     for (int i = 0; i < 10; i++){

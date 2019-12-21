@@ -32,7 +32,7 @@ short** setArray(short** donor, short** acceptor){
     return acceptor;
 }
 
-short* orientation(short rotation, short x, short piece){
+short* orientation(short rotation, short piece){
     printf("piece = %d, orientation = %d\n",piece,rotation);
     //{0 : "I", 1 : "O", 2 : "T", 3 : "J", 4 : "L", 5 : "S", 6 : "Z"}
     static short coords[6] = {0,0,0,0,0,0};
@@ -156,4 +156,69 @@ int getCol(short* board, short col){
         }
     }
     return result;
+}
+
+void printBoard(short* board){
+    //printf("printboard");
+    /*
+    char* string = malloc(20*11*sizeof(char)+1);
+    for (short i = 0; i < 20; i++){
+        char* str = toString(board[i]);
+        for (short j = 0; j < 10; j++){
+            string[j+i*11] = str[j];
+            printf("%d\n",j);
+        }
+        string[11*i+1] = '\n';
+        //printf("%d\n",11*i);
+    }
+    string[221] = '\0';
+    return string;*/
+    for (short i = 0; i < 20; i++){
+        printf("%s\n",toString(board[i]));
+    }
+}
+
+short* hardDrop(short* board, short piece, short rotation, short col){
+    int d[] = {2, 1, 4, 4, 4, 2, 2};
+    short* or = orientation((rotation-1)%d[piece],piece);
+    short height = or[1];
+    short width = or[0];
+    int coords[height];
+    short droppedHeight = 0;
+    short quit = 1;
+    int cols[or[1]];
+    for (short x = 0; x < or[0]; x++){
+        cols[x] = getCol(board,col+x);
+    }
+    for (short i = 0; i < width; i++){
+        coords[i] = or[i+2]<< 19 - height;
+    }
+    printf("%d %d\n",height,width);
+    for (; droppedHeight < 20 - height && quit; droppedHeight++){
+        for (short i = 0; i < width; i ++){
+            printf("coords = %d, cols = %d\n",coords[i]>>droppedHeight,cols[i]);
+            if ((coords[i] >> droppedHeight) & cols[i]){
+                quit = 0;
+                droppedHeight --;
+                printf(" early exit dropped height = %d\n",droppedHeight);
+                break;
+            }
+        }
+    }
+    printf("dropped height = %d\n",droppedHeight);
+    or = orientation(rotation,piece);
+    height = or[0];
+    width = or[1];
+    for (short i = 0; i < height; i++){
+        coords[i] = or[i+2] << 10 - col - width;
+    }
+    for (short i = 0; i < height; i++){
+        printf("i=%d\n",i);
+        if (board[droppedHeight + i] | coords[i]){
+            printf("board = %d piece = %d\n",board[droppedHeight],coords[i]);
+            //exit(-1);
+        }
+        board[droppedHeight + i] += coords[i]; 
+    }
+    return board;
 }

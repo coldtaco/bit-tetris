@@ -180,7 +180,7 @@ void printBoard(short* board){
 
 short* hardDrop(short* board, short piece, short rotation, short col){
     int d[] = {2, 1, 4, 4, 4, 2, 2};
-    short* or = orientation((rotation-1)%d[piece],piece);
+    short* or = orientation((rotation-1+d[piece])%d[piece],piece);
     short height = or[1];
     short width = or[0];
     int coords[height];
@@ -193,7 +193,7 @@ short* hardDrop(short* board, short piece, short rotation, short col){
     for (short i = 0; i < width; i++){
         coords[i] = or[i+2]<< 19 - height;
     }
-    printf("%d %d\n",height,width);
+    printf("h = %d w = %d\n",height,width);
     for (; droppedHeight < 20 - height && quit; droppedHeight++){
         for (short i = 0; i < width; i ++){
             printf("coords = %d, cols = %d\n",coords[i]>>droppedHeight,cols[i]);

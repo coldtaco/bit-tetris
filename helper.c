@@ -222,3 +222,37 @@ short* hardDrop(short* board, short piece, short rotation, short col){
     }
     return board;
 }
+
+void shuffle(int *array, size_t n)
+{
+    if (n > 1) 
+    {
+        size_t i;
+        for (i = 0; i < n - 1; i++) 
+        {
+          size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+          int t = array[j];
+          array[j] = array[i];
+          array[i] = t;
+        }
+    }
+}
+
+short* newBag(){
+    short bag[14] = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6};
+    shuffle(bag, 14);
+    return bag;
+}
+
+short clear(short* board){
+    short* nb = calloc(20, sizeof(short));
+    short cleared = 0;
+    for (short i = 19; i >= 0; i++){
+        if (board[i] == 1023){
+            cleared ++;
+        } else {
+            nb[i + cleared] = board[i];
+        }
+    }
+    return cleared;
+}

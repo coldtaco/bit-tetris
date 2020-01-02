@@ -3,6 +3,8 @@
 #include <math.h>
 #include "helper.h"
 #include <string.h>
+#include <limits.h>
+
 
 short** createArray(int m, int n)
 {
@@ -33,7 +35,7 @@ short** setArray(short** donor, short** acceptor){
 }
 
 short* orientation(short rotation, short piece){
-    printf("piece = %d, orientation = %d\n",piece,rotation);
+    //printf("piece = %d, orientation = %d\n",piece,rotation);
     //{0 : "I", 1 : "O", 2 : "T", 3 : "J", 4 : "L", 5 : "S", 6 : "Z"}
     static short coords[6] = {0,0,0,0,0,0};
     switch(piece){
@@ -174,7 +176,9 @@ void printBoard(short* board){
     string[221] = '\0';
     return string;*/
     for (short i = 0; i < 20; i++){
-        printf("%s\n",toString(board[i]));
+        char* str = toString(board[i]);
+        printf("%s\n",str);
+        free(str);
     }
 }
 
@@ -183,55 +187,70 @@ short* hardDrop(short* board, short piece, short rotation, short col){
     short* or = orientation((rotation-1+d[piece])%d[piece],piece);
     short height = or[1];
     short width = or[0];
-    int coords[height];
+    int coords[4];
     short droppedHeight = 0;
-    short quit = 1;
+    short quit = 2;
     int cols[or[1]];
     for (short x = 0; x < or[0]; x++){
         cols[x] = getCol(board,col+x);
     }
     for (short i = 0; i < width; i++){
-        coords[i] = or[i+2]<< 19 - height;
+        coords[width - 1 - i] = or[i+2]<< 20 - height;
+        //printf("coords = %d, %d, %d\n",coords[width - 1 - i],or[i+2], width - 1 - i);
     }
-    printf("h = %d w = %d\n",height,width);
-    for (; droppedHeight < 20 - height && quit; droppedHeight++){
+    //printf("h = %d w = %d\n",height,width);
+    for (; droppedHeight <= 20 - height && quit; droppedHeight++){
         for (short i = 0; i < width; i ++){
-            printf("coords = %d, cols = %d\n",coords[i]>>droppedHeight,cols[i]);
+            //printf("coords = %d, cols = %d, height = %d\n",coords[i]>>droppedHeight,cols[i], droppedHeight);
             if ((coords[i] >> droppedHeight) & cols[i]){
+                //printf("collied on col %d, with col = %d, piece = %d\n",i,cols[i],coords[i] >> droppedHeight);
+                //printf("collied on col %d, with col = %d, piece = %d\n",i+1,cols[i+1],coords[i+1] >> droppedHeight);
                 quit = 0;
-                droppedHeight --;
-                printf(" early exit dropped height = %d\n",droppedHeight);
+                //printf(" early exit dropped height = %d\n",droppedHeight);
                 break;
             }
         }
+        if (!quit){
+            break;
+        }
     }
-    printf("dropped height = %d\n",droppedHeight);
+    droppedHeight --;
+    //printf("dropped height = %d\n",droppedHeight);
     or = orientation(rotation,piece);
     height = or[0];
     width = or[1];
     for (short i = 0; i < height; i++){
         coords[i] = or[i+2] << 10 - col - width;
+        //printf("coor ds = %d\n", coords[i]);
+    }
+    if (droppedHeight + height - 1 > 19){
+        droppedHeight = 19 - height;
+        printf("last minute fix baybeee\n");
     }
     for (short i = 0; i < height; i++){
-        printf("i=%d\n",i);
-        if (board[droppedHeight + i] | coords[i]){
-            printf("board = %d piece = %d\n",board[droppedHeight],coords[i]);
+        if (droppedHeight + i > 19){
+            printf("226  %d, %d, %d, %d\n",droppedHeight + height -1,height,droppedHeight,droppedHeight + i);
+        }
+        if (board[droppedHeight + i] & coords[i]){
+            printf("fuck la board = %d piece = %d\n",board[droppedHeight+i],coords[i]);
             //exit(-1);
         }
+        //printf("226  %d, %d, %d, %d\n",board[droppedHeight + i],coords[i],board[droppedHeight + i] + coords[i],droppedHeight + i);
+        //printBoard(board);
         board[droppedHeight + i] += coords[i]; 
     }
+    //printf("finsihed\n");
     return board;
 }
 
-void shuffle(int *array, size_t n)
-{
+void shuffle(short *array, size_t n){
     if (n > 1) 
     {
         size_t i;
         for (i = 0; i < n - 1; i++) 
         {
           size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
-          int t = array[j];
+          short t = array[j];
           array[j] = array[i];
           array[i] = t;
         }
@@ -239,20 +258,150 @@ void shuffle(int *array, size_t n)
 }
 
 short* newBag(){
+    short* b = calloc(14, sizeof(short));
     short bag[14] = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6};
     shuffle(bag, 14);
-    return bag;
+    memcpy(b,bag,sizeof(b));
+    return b;
 }
 
 short clear(short* board){
-    short* nb = calloc(20, sizeof(short));
     short cleared = 0;
-    for (short i = 19; i >= 0; i++){
+    for (short i = 19; i >= 0; i--){
         if (board[i] == 1023){
             cleared ++;
         } else {
-            nb[i + cleared] = board[i];
+            board[i + cleared] = board[i];
         }
     }
     return cleared;
+}
+
+short getCleared(short* board){
+    if (board ==NULL){
+        printf("clear");
+        exit(-1);
+    }
+    short cleared = 0;
+    for (short i = 19; i >= 0; i--){
+        if (board[i] == 1023){
+            cleared ++;
+        }
+    }
+    return cleared;
+}
+
+float getScore(struct tetris game){
+    int sum = 0;
+    return game.sVector[0] * getCleared(game.board);
+}
+
+short* copyBoard(short* arr, short len){
+    short* arr2 = calloc(len,sizeof(short));
+    for (int x = len -1; x >= 0; x--){
+        arr2[x] = arr[x];
+    }
+    return arr2;
+}
+
+void bestMove(struct tetris *game){
+    if (game->board ==NULL){
+        printf("bestnmove");
+        exit(-1);
+    }
+    int d[] = {2, 1, 4, 4, 4, 2, 2};
+    short piece = game->bag[game->bagind];
+    float bestScore = INT_MIN;
+    short* bestBoard;
+    for (short rotation = 0; rotation <= d[piece]; rotation++){
+        short* or = orientation(rotation, piece);
+        for ( short x = 0; x < 10 - or[1]; x++ ){
+            //short* nb = hardDrop(game.board,piece,rotation,x);
+            short* nb = hardDrop(copyBoard(game->board,20),piece,rotation,x);
+            float score = getScore(*game);
+            if (score > bestScore){
+                bestScore = score;
+                bestBoard = nb;
+            } else {
+                free(nb);
+            }
+        }
+    }
+    free(game->board);
+    game->board = bestBoard;
+    game->cleared += clear(game->board);
+}
+
+void initializeTetris(struct tetris *game){
+    short* _ = calloc(20,sizeof(short));
+    game->board = _;
+    game->bag = newBag();
+    game->bagind = 0;
+    game->cleared = 0;
+    game->sVector = calloc(1,sizeof(float));
+    if (game->board ==NULL){
+        printf("inittetris");
+        exit(-1);
+    }
+}
+
+void freeGame(struct tetris *game){
+    free(game->board);
+    free(game->bag);
+    free(game->sVector);
+    free(game);
+}
+
+short holes(short* board){
+    short prevRow = board[1];
+    short holes = 0;
+    for (short i = 2; i < 21; i++){
+        holes = ~board[i] & (holes | prevRow);
+        for (short j = 0; j < 10; j++){
+            if (1 << j & holes){
+                holes++;
+            }
+        }
+        prevRow = board[i-1];
+    }
+    return holes;
+}
+
+short wells(short* board){
+    int cols[10];
+    for (short i = 0; i < 10; i ++){
+        cols[i] = getCol(board,i);
+    }
+    int occupiedTrips[10] = {0};
+    int unoccupiedTrips[10] = {0};
+    short wells = 0;
+    for (short i = 0; i < 10; i ++){
+        int currCol = cols[i];
+        for (short j = 0; j < 20-3; j++){
+            if ((currCol & 7 << j) == 7 <<j){
+                occupiedTrips[i] += 1 << 7;
+            } else if ((~currCol &  7 <<  j) == 7 << j ){
+                unoccupiedTrips[i] += 1 << 7;
+            }
+        }
+    }
+    for (short i = 0; i < 17;i++){
+        if ((occupiedTrips[1] & unoccupiedTrips[0]) & 1 << i){
+            wells += 1;
+        }
+    }
+    for (short i = 0; i < 17;i++){
+        if ((occupiedTrips[8] & unoccupiedTrips[9]) & 1 << i){
+            wells += 1;
+        }
+    }
+    for (short j = 1; j < 8; j++){
+        int compare = occupiedTrips[j-1] & unoccupiedTrips[j]& occupiedTrips[j+1];
+        for (short i = 0; i < 17;i++){
+            if (compare & 1 << i){
+                wells += 1;
+            }
+        }
+    }
+    return wells;
 }

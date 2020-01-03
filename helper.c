@@ -182,7 +182,7 @@ void printBoard(short* board){
     }
 }
 
-short* hardDrop(short* board, short piece, short rotation, short col){
+short* hardDrop(short* board, short piece, short rotation, short col, short* dHeight){
     int d[] = {2, 1, 4, 4, 4, 2, 2};
     short* or = orientation((rotation-1+d[piece])%d[piece],piece);
     short height = or[1];
@@ -239,6 +239,7 @@ short* hardDrop(short* board, short piece, short rotation, short col){
         //printBoard(board);
         board[droppedHeight + i] += coords[i]; 
     }
+    dHeight = droppedHeight + height - 1;
     //printf("finsihed\n");
     return board;
 }
@@ -291,7 +292,7 @@ short getCleared(short* board){
     return cleared;
 }
 
-float getScore(struct tetris game){
+float getScore(struct tetris game, short* dHeight){
     int sum = 0;
     return game.sVector[0] * getCleared(game.board);
 }
@@ -317,8 +318,9 @@ void bestMove(struct tetris *game){
         short* or = orientation(rotation, piece);
         for ( short x = 0; x < 10 - or[1]; x++ ){
             //short* nb = hardDrop(game.board,piece,rotation,x);
-            short* nb = hardDrop(copyBoard(game->board,20),piece,rotation,x);
-            float score = getScore(*game);
+            short* dHeight = 0;
+            short* nb = hardDrop(copyBoard(game->board,20),piece,rotation,x, dHeight);
+            float score = getScore(*game, dHeight);
             if (score > bestScore){
                 bestScore = score;
                 bestBoard = nb;

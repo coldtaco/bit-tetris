@@ -27,3 +27,6 @@ short* copyBoard(short* arr, short len);
 void bestMove(struct tetris *game);
 void initializeTetris(struct tetris *game);
 void freeGame(struct tetris *game);
+short holes(short* board);
+short wells(short* board);
+float distance(short* board);

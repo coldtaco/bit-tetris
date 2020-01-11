@@ -147,7 +147,9 @@ char* IntToString(int s){
     string[20] = '\0';
     return string;
 }
-
+/**
+ * returns column where lowest row is least significant bit
+ */
 int getCol(short* board, short col){
     short index = 512;
     int result = 0;
@@ -185,55 +187,36 @@ void printBoard(short* board){
 
 short* hardDrop(short* board, short piece, short rotation, short col, short* dHeight){
     //printf("piece = %d, rotation = %d, col = %d\n",piece, rotation, col);
-    int d[] = {2, 1, 4, 4, 4, 2, 2};
-    short* or = orientation((rotation-1+d[piece])%d[piece],piece);
-    short height = or[1];
-    short width = or[0];
+    //int d[] = {2, 1, 4, 4, 4, 2, 2};
+    short* or = orientation(rotation,piece);
+    short height = or[0];
+    short width = or[1];
     int coords[4];
-    short droppedHeight = 1;
+    short droppedHeight = 0;
     short quit = 2;
-    int cols[or[1]];
-    //printf("height = %d, width = %d\n",height, width);
-    for (short x = 0; x < or[0]; x++){
-        cols[x] = getCol(board,col+x);
-    }
-    for (short i = 0; i < width; i++){
-        coords[width - 1 - i] = or[i+2]<< (21 - height);
+    //int cols[or[1]];
+    for (short i = 0; i < height; i++){
+        coords[i] = or[i+2]<< (9 - col - width + 1);
         //printf("coords = %d, %d, %d\n",coords[width - 1 - i],or[i+2], width - 1 - i);
     }
-    //printf("h = %d w = %d\n",height,width);
-    for (; droppedHeight <= 21 - height && quit; droppedHeight++){
-        for (short i = 0; i < width; i ++){
-            //printf("coords = %d, cols = %d, height = %d\n",coords[i]>>droppedHeight,cols[i], droppedHeight);
-            if ((coords[i] >> droppedHeight) & cols[i]){
-                //printf("collied on col %d, with col = %d, piece = %d\n",i,cols[i],coords[i] >> droppedHeight);
-                //printf("collied on col %d, with col = %d, piece = %d\n",i+1,cols[i+1],col);
-                quit = 0;
-                //printf(" early exit dropped height = %d\n",droppedHeight);
-                break;
+    for (;droppedHeight < 21 - height && quit;) {
+        droppedHeight ++;
+    // Check if piece collides with the cells of the current row.
+        for (short i = 0; i < height; i++) {
+            if ((board[droppedHeight + i] & coords[i])) {
+            // Found collision - place piece on row above.
+            quit = 0;
+            droppedHeight --;
+            //printf("DROPPEDHEIGHT = %d\n",droppedHeight);
+            break;
             }
         }
-        if (!quit){
-            break;
-        }
     }
-    droppedHeight --;
-    //printf("dropped height = %d\n",droppedHeight);
-    or = orientation(rotation,piece);
-    //printf("original height = %d, new height = %d\n",height,or[0]);
-    height = or[0];
-    width = or[1];
+    //printf("droppedheight = %d\n",droppedHeight);
+    //printf("dropped height = %d, height = %d, piece = %d\n", droppedHeight,height,piece);
     for (short i = 0; i < height; i++){
-        coords[i] = or[i+2] << (10 - col - width);
-        //printf("coor ds = %d\n", coords[i]);
-    }
-    if (droppedHeight + height - 1 > 20){
-        droppedHeight = 21 - height;
-        //printf("last minute fix baybeee\n");
-    }
-    for (short i = 0; i < height; i++){
-        if (droppedHeight + i > 20){
-            //printf("226  %d, %d, %d, %d\n",droppedHeight + height -1,height,droppedHeight,droppedHeight + i);
+        if (droppedHeight + i > 21){
+            printf("217  %d, %d, %d, %d\n",droppedHeight + height -1,height,droppedHeight,droppedHeight + i);
             exit(-1);
         }
         if (board[droppedHeight + i] & coords[i]){
@@ -245,9 +228,10 @@ short* hardDrop(short* board, short piece, short rotation, short col, short* dHe
         }
         //printf("226  %d, %d, %d, %d\n",board[droppedHeight + i],coords[i],board[droppedHeight + i] + coords[i],droppedHeight + i);
         //printBoard(board);
-        board[droppedHeight + i] += coords[i]; 
+        board[droppedHeight + i] |= coords[i]; 
     }
     *dHeight = droppedHeight + height - 1;
+    //printBoard(board);
     //printf("finsihed\n");
     return board;
 }
@@ -279,9 +263,13 @@ short clear(short* board){
     for (short i = 20; i >= 1; i--){
         if (board[i] == 1023){
             cleared ++;
+            //printf("cleared at %d",i);
         } else {
             board[i + cleared] = board[i];
         }
+    }
+    for (short i = 0; i < cleared; i++){
+        board[i + 1] = 0;
     }
     return cleared;
 }
@@ -300,9 +288,22 @@ short getCleared(short* board){
     return cleared;
 }
 
-float getScore(struct tetris game, short* dHeight){
+float getScore(struct tetris game, short* dHeight,short*board){ 
+    if (board[0]){
+        return -9999;
+    }
+    float score = 0;
+    score += game.sVector[0] * getCleared(board);
+    score += game.sVector[1] * wells(board);
+    //printf("wells = %f",game.sVector[1] * wells(board));
+    score += game.sVector[2] * holes(board);
+    score += game.sVector[3] * distance(board);
+    score += game.sVector[4] * (20 - dHeight[0]);
+    score += game.sVector[5] * rowTransitions(board);
+    score += game.sVector[6] * colTransitions(board);
+    //printf("got score of %f\n",score);
     //printf("cleared = %d, wells = %d, holes = %d, distance = %f, height =  %d\n",getCleared(game.board), wells(game.board),holes(game.board),distance(game.board),20 - dHeight[0]);
-    return game.sVector[0] * getCleared(game.board) - game.sVector[1] * wells(game.board) - game.sVector[2] * holes(game.board) - game.sVector[3] * distance(game.board)- game.sVector[4] * (20 - dHeight[0]) ;
+    return score;
 }
 
 short* copyBoard(short* arr, short len){
@@ -330,7 +331,7 @@ void bestMove(struct tetris *game){
             //short* nb = hardDrop(game.board,piece,rotation,x);
             short* dHeight = calloc(1, sizeof(short));
             short* nb = hardDrop(copyBoard(game->board,21),piece,rotation,x, dHeight);
-            float score = getScore(*game, dHeight);
+            float score = getScore(*game, dHeight,nb);
             free(dHeight);
             if (score > bestScore){
                 //printf("set best");
@@ -395,11 +396,11 @@ short wells(short* board){
     short wells = 0;
     for (short i = 0; i < 10; i ++){
         int currCol = cols[i];
-        for (short j = 1; j < 21-3; j++){
+        for (short j = 1; j < 20-3; j++){
             if ((currCol & 7 << j) == 7 <<j){
-                occupiedTrips[i] += 1 << 7;
+                occupiedTrips[i] += (1 << j);
             } else if ((~currCol &  7 <<  j) == 7 << j ){
-                unoccupiedTrips[i] += 1 << 7;
+                unoccupiedTrips[i] += (1 << j);
             }
         }
     }
@@ -419,7 +420,7 @@ short wells(short* board){
         int compare = occupiedTrips[j-1] & unoccupiedTrips[j]& occupiedTrips[j+1];
         for (short i = 0; i < 17;i++){
             if (compare & 1 << i){
-                //printf("well at j");
+                //printf("well at %d",j);
                 wells += 1;
             }
         }
@@ -448,4 +449,31 @@ float distance(short* board){
     }
     //printf("\n");
     return distance;
+}
+
+short rowTransitions(short* board){
+    short transitions = 0;
+    for (short i = 1; i < 21; i++){
+        short curr = ~board[i] & (board[i] >> 1);
+        for (short j = 0;j < 10; j++){
+            if (curr & (1 << j)){
+                transitions++;
+            }
+        }
+    }
+    return transitions;
+}
+
+short colTransitions(short* board){
+    short transitions = 0;
+    for (short i = 0; i < 10; i++){
+        int currCol = getCol(board,i);
+        int curr = ~currCol & (currCol >> 1);
+        for (short j = 0;j < 20; j++){
+            if (curr & (1 << j)){
+                transitions++;
+            }
+        }
+    }
+    return transitions;
 }

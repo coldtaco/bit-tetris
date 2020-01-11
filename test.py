@@ -4,6 +4,11 @@ import math
 import statistics
 import operator
 from multiprocessing import Pool
+from pympler.tracker import SummaryTracker
+tracker = SummaryTracker()
+from mem_top import mem_top
+import gc
+import objgraph
 
 class Point():
     def __init__(self,args:list, result):
@@ -53,15 +58,29 @@ def calc(pairs):
     p1.result, p2.result = tetris.eval(p1.args), tetris.eval(p2.args)
     return searchLocalMin(p1,p2,tetris.eval)
 
-def getGlobal(function, lowerBound, upperBound, points = 10, delta = 10e-6, multiPorcessing = True):
+def getGlobal(function, lowerBound, upperBound, points = 5, delta = 10e-6, multiPorcessing = True):
     assert(len(lowerBound) == len(upperBound))
     pointsPairs = []
     bestPoints = []
+    batch = 50
     if isinstance(points,int):
         pointsPairs = createPoints([points]*len(upperBound), lowerBound, upperBound)
         if multiPorcessing:
+            for x in range(len(pointsPairs)//batch):
+                with Pool() as pool:
+                    _ = pointsPairs[0:batch]
+                    pointsPairs = pointsPairs[batch:]
+                    bestPoints += pool.map(calc, _)
+                    with open("tetris.log",'a') as file:
+                        for y in range(batch):
+                            file.write(f"{bestPoints[batch*x+y]};\n")
+                gc.collect()
+                print("##############")
             with Pool() as pool:
-                pool.map(calc, pointsPairs)
+                bestPoints += pool.map(calc, pointsPairs)
+            with open("tetris.log",'a') as file:
+                for x in bestPoints[(len(pointsPairs)//batch)*batch:]:
+                    file.write(f"{x};\n")
         else:
             for p1, p2 in pointsPairs:
                 p1.result = function(p1.args)
@@ -121,7 +140,8 @@ def f(p):
     return x**2 + y**2
 
 if __name__ == '__main__':
+    #print(tetris.eval([3.4181268101392694,-3.3855972247263626,-7.899265427351652,0,-4.500158825082766,-3.2178882868487753,-9.348695305445199]))
+    #exit()
     with open('tetris.log','w') as file:
-        x = getGlobal(tetris.eval,[0,0,0,0,0],[10,10,10,10,10])
-        file.write(str(x))
+        x = getGlobal(tetris.eval,[0,0,0,0,0,0,0],[10,10,10,10,10,10,10])
         print(x[0])

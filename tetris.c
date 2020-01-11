@@ -23,6 +23,7 @@ PyObject* eval(PyObject* self, PyObject* args){
     float *sVector = calloc(length, sizeof(float));
     for (int i = 0; i < length; i++){
         sVector[i] = PyFloat_AsDouble(PyList_GetItem(listObj,i));
+        //printf("%f\n",sVector[i]);
     }
     game->sVector = sVector;
     playGame(game);

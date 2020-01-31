@@ -9,11 +9,15 @@ tracker = SummaryTracker()
 from mem_top import mem_top
 import gc
 import objgraph
+import pickle
+import time
 
 class Point():
     def __init__(self,args:list, result):
         self.args = args
         self.result = result
+        self.finished = False
+        self.earlyExit = False
      
     def __str__(self):
         x = [str(s) for s in self.args]
@@ -38,9 +42,11 @@ def gradient(x1,x2,y1,y2):
 
 def searchLocalMin(p1:Point,p2:Point,function ,delta = 10e-6, max_iter = 10000):
     iter = 1
-    print(f"testing {p1} ,{p2} ", end="")
     deltas = []
     while iter < max_iter and not checkDeltas(p1,p2,delta):
+        if (p1.result if p1.result < p2.result else p2.result) > -iter//50:
+            p1.earlyExit, p2.earlyExit = True, True
+            break
         if p1.result == p2.result:
             p2.args = [(x1+x2)/2 for x1,x2 in zip(p1.args,p2.args)]
         if p1.result < p2.result:
@@ -49,8 +55,10 @@ def searchLocalMin(p1:Point,p2:Point,function ,delta = 10e-6, max_iter = 10000):
         else:
             p1.args = [newVal(x2,x1,gradient(x1,x2,p1.result,p2.result),iter) for x1,x2 in zip(p1.args,p2.args)]
             p1.result = function(p1.args)
+        time.sleep(0.001)
         iter += 1
-    print(f" for a score of {p1 if p1.result < p2.result else p2}")
+    print(f"{p1 if p1.result < p2.result else p2}")
+    p1.finished, p2.finished = True, True
     return p1 if p1.result < p2.result else p2
 
 def calc(pairs):
@@ -64,23 +72,38 @@ def getGlobal(function, lowerBound, upperBound, points = 5, delta = 10e-6, multi
     bestPoints = []
     batch = 50
     if isinstance(points,int):
-        pointsPairs = createPoints([points]*len(upperBound), lowerBound, upperBound)
+        try:
+            with open(f"saves/{function.__module__}_{function.__name__}_points",'rb') as file:
+                pointsPairs = pickle.load(file)
+            with open(f"saves/{function.__module__}_{function.__name__}_bestPoints",'rb') as file:
+                bestPoints = pickle.load(file)
+        except:
+            pointsPairs = createPoints([points]*len(upperBound), lowerBound, upperBound)
         if multiPorcessing:
             for x in range(len(pointsPairs)//batch):
+                print(f"Points left: {len(pointsPairs)}")
                 with Pool() as pool:
                     _ = pointsPairs[0:batch]
                     pointsPairs = pointsPairs[batch:]
                     bestPoints += pool.map(calc, _)
-                    with open("tetris.log",'a') as file:
-                        for y in range(batch):
-                            file.write(f"{bestPoints[batch*x+y]};\n")
+                with open("tetris.log",'a') as file:
+                    for y in range(batch):
+                        file.write(f"{bestPoints[batch*x+y]};\n")
+                time.sleep(1)
                 gc.collect()
-                print("##############")
+                with open(f"saves/{function.__module__}_{function.__name__}_points",'wb') as file:
+                    pickle.dump(pointsPairs, file)
+                with open(f"saves/{function.__module__}_{function.__name__}_bestPoints",'wb') as file:
+                    pickle.dump(bestPoints, file)
             with Pool() as pool:
                 bestPoints += pool.map(calc, pointsPairs)
             with open("tetris.log",'a') as file:
                 for x in bestPoints[(len(pointsPairs)//batch)*batch:]:
                     file.write(f"{x};\n")
+            with open(f"saves/{function.__module__}_{function.__name__}_points",'wb') as file:
+                pickle.dump(pointsPairs, file)
+            with open(f"saves/{function.__module__}_{function.__name__}_bestPoints",'wb') as file:
+                pickle.dump(bestPoints, file)
         else:
             for p1, p2 in pointsPairs:
                 p1.result = function(p1.args)
@@ -142,6 +165,5 @@ def f(p):
 if __name__ == '__main__':
     #print(tetris.eval([3.4181268101392694,-3.3855972247263626,-7.899265427351652,0,-4.500158825082766,-3.2178882868487753,-9.348695305445199]))
     #exit()
-    with open('tetris.log','w') as file:
-        x = getGlobal(tetris.eval,[0,0,0,0,0,0,0],[10,10,10,10,10,10,10])
-        print(x[0])
+    x = getGlobal(tetris.eval,[-10,-10,-10,-10,-10,-10,-10],[10,10,10,10,10,10,10])
+    print(x[0])

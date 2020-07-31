@@ -6,7 +6,7 @@ typedef struct tetris {
     short* bag;
     short bagind;
     long cleared;
-    double* sVector;
+    float* sVector;
     
 }tetris;
 short* orientation(short rotation, short piece);
@@ -22,7 +22,7 @@ void shuffle(short *array, size_t n);
 short* newBag();
 short clear(short* board);
 short getCleared(short* board);
-double getScore(struct tetris* game, short dHeight,short*board);
+float getScore(struct tetris game, short* dHeight,short*board);
 short* copyBoard(short* arr, short len);
 void bestMove(struct tetris *game);
 void initializeTetris(struct tetris *game);

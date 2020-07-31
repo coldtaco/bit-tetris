@@ -179,7 +179,7 @@ void printBoard(short* board){
     return string;*/
     for (short i = 0; i < 20; i++){
         char* str = toString(board[i + 1]);
-        printf("%s\n",str);
+        printf("%s %d\n",str, i);
         free(str);
     }
     printf("\n");
@@ -288,19 +288,19 @@ short getCleared(short* board){
     return cleared;
 }
 
-double getScore(struct tetris *game, short dHeight,short*board){ 
+float getScore(struct tetris game, short* dHeight,short*board){ 
     if (board[0]){
         return -9999;
     }
-    double score = 0;
-    score += (game -> sVector)[0] * getCleared(board);
-    score += (game -> sVector)[1] * wells(board);
+    float score = 0;
+    score += game.sVector[0] * getCleared(board);
+    score += game.sVector[1] * wells(board);
     //printf("wells = %f",game.sVector[1] * wells(board));
-    score += (game -> sVector)[2] * holes(board);
-    score += (game -> sVector)[3] * distance(board);
-    score += (game -> sVector)[4] * (20 - dHeight);
-    score += (game -> sVector)[5] * rowTransitions(board);
-    score += (game -> sVector)[6] * colTransitions(board);
+    score += game.sVector[2] * holes(board);
+    score += game.sVector[3] * distance(board);
+    score += game.sVector[4] * (20 - dHeight[0]);
+    score += game.sVector[5] * rowTransitions(board);
+    score += game.sVector[6] * colTransitions(board);
     //printf("got score of %f\n",score);
     //printf("cleared = %d, wells = %d, holes = %d, distance = %f, height =  %d\n",getCleared(game.board), wells(game.board),holes(game.board),distance(game.board),20 - dHeight[0]);
     return score;
@@ -322,16 +322,17 @@ void bestMove(struct tetris *game){
     int tested = 0;
     int d[] = {2, 1, 4, 4, 4, 2, 2};
     short piece = game->bag[game->bagind];
-    double bestScore = INT_MIN;
+    float bestScore = INT_MIN;
     short* bestBoard;
-    short dHeight;
     for (short rotation = 0; rotation < d[piece]; rotation++){
         short* or = orientation(rotation, piece);
         for ( short x = 0; x <= 10 - or[1]; x++ ){
             tested ++;
             //short* nb = hardDrop(game.board,piece,rotation,x);
-            short* nb = hardDrop(copyBoard(game->board,21),piece,rotation,x, &dHeight);
-            double score = getScore(game, dHeight,nb);
+            short* dHeight = calloc(1, sizeof(short));
+            short* nb = hardDrop(copyBoard(game->board,21),piece,rotation,x, dHeight);
+            float score = getScore(*game, dHeight,nb);
+            free(dHeight);
             if (score > bestScore){
                 //printf("set best");
                 bestScore = score;

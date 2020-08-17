@@ -35,88 +35,88 @@ short** setArray(short** donor, short** acceptor){
 }
 
 short* orientation(short rotation, short piece){
-    //printf("piece = %d, orientation = %d\n",piece,rotation);
+    //printf("piece = %d, orientation = %d\n", piece, rotation);
     //{0 : "I", 1 : "O", 2 : "T", 3 : "J", 4 : "L", 5 : "S", 6 : "Z"}
-    static short coords[6] = {0,0,0,0,0,0};
+    static short coords[6] = {0, 0, 0, 0, 0, 0};
     switch(piece){
         case 0:
             switch(rotation){
                 case 0:
-                    memcpy(coords, (short[]){4,1,0x1,0x1,0x1,0x1}, sizeof(coords));
+                    memcpy(coords, (short[]){4, 1, 0x1, 0x1, 0x1, 0x1}, sizeof(coords));
                     break;
                 case 1:
-                    memcpy(coords, (short[]){1,4,0xf}, sizeof(coords));
+                    memcpy(coords, (short[]){1, 4, 0xf}, sizeof(coords));
                     break;
             }
             break;
         case 1:
-            memcpy(coords, (short[]){2,2,0x3,0x3}, sizeof(coords));
+            memcpy(coords, (short[]){2, 2, 0x3, 0x3}, sizeof(coords));
             break;
         case 2:
             switch(rotation){
                 case 0:
-                    memcpy(coords, (short[]){2,3,0x7,0x2}, sizeof(coords));
+                    memcpy(coords, (short[]){2, 3, 0x7, 0x2}, sizeof(coords));
                     break;
                 case 1:
-                    memcpy(coords, (short[]){3,2,0x1,0x3,0x1}, sizeof(coords));
+                    memcpy(coords, (short[]){3, 2, 0x1, 0x3, 0x1}, sizeof(coords));
                     break;
                 case 2:
-                    memcpy(coords, (short[]){2,3,0x2,0x7}, sizeof(coords));
+                    memcpy(coords, (short[]){2, 3, 0x2, 0x7}, sizeof(coords));
                     break;
                 case 3:
-                    memcpy(coords, (short[]){3,2,0x2,0x3,0x2}, sizeof(coords));
+                    memcpy(coords, (short[]){3, 2, 0x2, 0x3, 0x2}, sizeof(coords));
                     break;
             }
             break;
         case 3:
             switch(rotation){
                 case 0:
-                    memcpy(coords, (short[]){3,2,0x1,0x1,0x3}, sizeof(coords));
+                    memcpy(coords, (short[]){3, 2, 0x1, 0x1, 0x3}, sizeof(coords));
                     break;
                 case 1:
-                    memcpy(coords, (short[]){2,3,0x4,0x7}, sizeof(coords));
+                    memcpy(coords, (short[]){2, 3, 0x4, 0x7}, sizeof(coords));
                     break;
                 case 2:
-                    memcpy(coords, (short[]){3,2,0x3,0x2,0x2}, sizeof(coords));
+                    memcpy(coords, (short[]){3, 2, 0x3, 0x2, 0x2}, sizeof(coords));
                     break;
                 case 3:
-                    memcpy(coords, (short[]){2,3,0x7,0x1}, sizeof(coords));
+                    memcpy(coords, (short[]){2, 3, 0x7, 0x1}, sizeof(coords));
                     break;
             }
             break;
         case 4:
             switch(rotation){
                 case 0:
-                    memcpy(coords, (short[]){3,2,0x2,0x2,0x3}, sizeof(coords));
+                    memcpy(coords, (short[]){3, 2, 0x2, 0x2, 0x3}, sizeof(coords));
                     break;
                 case 1:
-                    memcpy(coords, (short[]){2,3,0x7,0x4}, sizeof(coords));
+                    memcpy(coords, (short[]){2, 3, 0x7, 0x4}, sizeof(coords));
                     break;
                 case 2:
-                    memcpy(coords, (short[]){3,2,0x3,0x1,0x1}, sizeof(coords));
+                    memcpy(coords, (short[]){3, 2, 0x3, 0x1, 0x1}, sizeof(coords));
                     break;
                 case 3:
-                    memcpy(coords, (short[]){2,3,0x1,0x7}, sizeof(coords));
+                    memcpy(coords, (short[]){2, 3, 0x1, 0x7}, sizeof(coords));
                     break;
             }
             break;
         case 5:
             switch(rotation){
                 case 0:
-                    memcpy(coords, (short[]){2,3,0x3,0x6}, sizeof(coords));
+                    memcpy(coords, (short[]){2, 3, 0x3, 0x6}, sizeof(coords));
                     break;
                 case 1:
-                    memcpy(coords, (short[]){3,2,0x2,0x3,0x1}, sizeof(coords));
+                    memcpy(coords, (short[]){3, 2, 0x2, 0x3, 0x1}, sizeof(coords));
                     break;
             }
             break;
         case 6:
             switch(rotation){
                 case 0:
-                    memcpy(coords, (short[]){2,3,0x6,0x3}, sizeof(coords));
+                    memcpy(coords, (short[]){2, 3, 0x6, 0x3}, sizeof(coords));
                     break;
                 case 1:
-                    memcpy(coords, (short[]){3,2,0x1,0x3,0x2}, sizeof(coords));
+                    memcpy(coords, (short[]){3, 2, 0x1, 0x3, 0x2}, sizeof(coords));
                     break;
             }
     }
@@ -127,7 +127,7 @@ char* toString(short s){
     char* string = malloc(11*sizeof(char));
     int index = 512;//2^9
     for (int i = 0; i < 10; i++){
-        //printf("%u",index & s ? 1 : 0);
+        //printf("%u", index & s ? 1 : 0);
         string[i] = index & s ? '1' : '0';
         index = index >> 1;
     }
@@ -140,7 +140,7 @@ char* IntToString(int s){
     int index = 524288;//2^19
     
     for (int i = 1; i < 21; i++){
-        //printf("%u",index & s ? 1 : 0);
+        //printf("%u", index & s ? 1 : 0);
         string[i] = index & s ? '1' : '0';
         index = index >> 1;
     }
@@ -156,7 +156,7 @@ int getCol(short* board, short col){
     index = index >> col;
     for (int row = 0; row < 20; row++){
         if (board[row+1] & index){
-            result += pow(2,19-row);
+            result += pow(2, 19-row);
         }
     }
     return result;
@@ -170,25 +170,25 @@ void printBoard(short* board){
         char* str = toString(board[i]);
         for (short j = 0; j < 10; j++){
             string[j+i*11] = str[j];
-            printf("%d\n",j);
+            printf("%d\n", j);
         }
         string[11*i+1] = '\n';
-        //printf("%d\n",11*i);
+        //printf("%d\n", 11*i);
     }
     string[221] = '\0';
     return string;*/
     for (short i = 0; i < 20; i++){
         char* str = toString(board[i + 1]);
-        printf("%s\n",str);
+        printf("%s\n", str);
         free(str);
     }
     printf("\n");
 }
 
 short* hardDrop(short* board, short piece, short rotation, short col, short* dHeight){
-    //printf("piece = %d, rotation = %d, col = %d\n",piece, rotation, col);
+    //printf("piece = %d, rotation = %d, col = %d\n", piece, rotation, col);
     //int d[] = {2, 1, 4, 4, 4, 2, 2};
-    short* or = orientation(rotation,piece);
+    short* or = orientation(rotation, piece);
     short height = or[0];
     short width = or[1];
     int coords[4];
@@ -197,7 +197,7 @@ short* hardDrop(short* board, short piece, short rotation, short col, short* dHe
     //int cols[or[1]];
     for (short i = 0; i < height; i++){
         coords[i] = or[i+2]<< (9 - col - width + 1);
-        //printf("coords = %d, %d, %d\n",coords[width - 1 - i],or[i+2], width - 1 - i);
+        //printf("coords = %d, %d, %d\n", coords[width - 1 - i], or[i+2], width - 1 - i);
     }
     for (;droppedHeight < 21 - height && quit;) {
         droppedHeight ++;
@@ -207,26 +207,26 @@ short* hardDrop(short* board, short piece, short rotation, short col, short* dHe
             // Found collision - place piece on row above.
             quit = 0;
             droppedHeight --;
-            //printf("DROPPEDHEIGHT = %d\n",droppedHeight);
+            //printf("DROPPEDHEIGHT = %d\n", droppedHeight);
             break;
             }
         }
     }
-    //printf("droppedheight = %d\n",droppedHeight);
-    //printf("dropped height = %d, height = %d, piece = %d\n", droppedHeight,height,piece);
+    //printf("droppedheight = %d\n", droppedHeight);
+    //printf("dropped height = %d, height = %d, piece = %d\n", droppedHeight, height, piece);
     for (short i = 0; i < height; i++){
         if (droppedHeight + i > 21){
-            printf("217  %d, %d, %d, %d\n",droppedHeight + height -1,height,droppedHeight,droppedHeight + i);
+            printf("217  %d, %d, %d, %d\n", droppedHeight + height -1, height, droppedHeight, droppedHeight + i);
             exit(-1);
         }
         if (board[droppedHeight + i] & coords[i]){
-            //printf("fuck la board = %d piece = %d dropped height = %d\n",board[droppedHeight+i],coords[i],droppedHeight + i);
+            //printf("fuck la board = %d piece = %d dropped height = %d\n", board[droppedHeight+i], coords[i], droppedHeight + i);
             //printf("piece = %d, rotation = %d, col = %d\n", piece, rotation, col);
             //printBoard(board);
             board[0] = 1;
             //exit(-1);
         }
-        //printf("226  %d, %d, %d, %d\n",board[droppedHeight + i],coords[i],board[droppedHeight + i] + coords[i],droppedHeight + i);
+        //printf("226  %d, %d, %d, %d\n", board[droppedHeight + i], coords[i], board[droppedHeight + i] + coords[i], droppedHeight + i);
         //printBoard(board);
         board[droppedHeight + i] |= coords[i]; 
     }
@@ -254,7 +254,7 @@ short* newBag(){
     short* b = calloc(14, sizeof(short));
     short bag[14] = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6};
     shuffle(bag, 14);
-    memcpy(b,bag,sizeof(bag));
+    memcpy(b, bag, sizeof(bag));
     return b;
 }
 
@@ -263,7 +263,7 @@ short clear(short* board){
     for (short i = 20; i >= 1; i--){
         if (board[i] == 1023){
             cleared ++;
-            //printf("cleared at %d",i);
+            //printf("cleared at %d", i);
         } else {
             board[i + cleared] = board[i];
         }
@@ -288,26 +288,26 @@ short getCleared(short* board){
     return cleared;
 }
 
-double getScore(struct tetris *game, short dHeight,short*board){ 
+double getScore(struct tetris *game, short dHeight, short*board){ 
     if (board[0]){
         return -9999;
     }
     double score = 0;
     score += (game -> sVector)[0] * getCleared(board);
     score += (game -> sVector)[1] * wells(board);
-    //printf("wells = %f",game.sVector[1] * wells(board));
+    //printf("wells = %f", game.sVector[1] * wells(board));
     score += (game -> sVector)[2] * holes(board);
     score += (game -> sVector)[3] * distance(board);
     score += (game -> sVector)[4] * (20 - dHeight);
     score += (game -> sVector)[5] * rowTransitions(board);
     score += (game -> sVector)[6] * colTransitions(board);
-    //printf("got score of %f\n",score);
-    //printf("cleared = %d, wells = %d, holes = %d, distance = %f, height =  %d\n",getCleared(game.board), wells(game.board),holes(game.board),distance(game.board),20 - dHeight[0]);
+    //printf("got score of %f\n", score);
+    //printf("cleared = %d, wells = %d, holes = %d, distance = %f, height =  %d\n", getCleared(game.board), wells(game.board), holes(game.board), distance(game.board), 20 - dHeight[0]);
     return score;
 }
 
 short* copyBoard(short* arr, short len){
-    short* arr2 = calloc(len,sizeof(short));
+    short* arr2 = calloc(len, sizeof(short));
     for (int x = len -1; x >= 0; x--){
         arr2[x] = arr[x];
     }
@@ -315,13 +315,13 @@ short* copyBoard(short* arr, short len){
 }
 
 void bestMove(struct tetris *game){
-    if (game->board ==NULL){
+    if (game -> board == NULL){
         //printf("bestnmove");
         exit(-1);
     }
     int tested = 0;
     int d[] = {2, 1, 4, 4, 4, 2, 2};
-    short piece = game->bag[game->bagind];
+    short piece = game -> bag[game -> bagind];
     double bestScore = INT_MIN;
     short* bestBoard;
     short dHeight;
@@ -329,9 +329,9 @@ void bestMove(struct tetris *game){
         short* or = orientation(rotation, piece);
         for ( short x = 0; x <= 10 - or[1]; x++ ){
             tested ++;
-            //short* nb = hardDrop(game.board,piece,rotation,x);
-            short* nb = hardDrop(copyBoard(game->board,21),piece,rotation,x, &dHeight);
-            double score = getScore(game, dHeight,nb);
+            //short* nb = hardDrop(game.board, piece, rotation, x);
+            short* nb = hardDrop(copyBoard(game -> board, 21), piece, rotation, x, &dHeight);
+            double score = getScore(game, dHeight, nb);
             if (score > bestScore){
                 //printf("set best");
                 bestScore = score;
@@ -341,31 +341,31 @@ void bestMove(struct tetris *game){
             }
         }
     }
-    //printf("tested %d times piece = %d\n", tested,piece);
-    free(game->board);
-    game->board = bestBoard;
-    //printf("bestscore = %f\n",bestScore);
+    //printf("tested %d times piece = %d\n", tested, piece);
+    free(game -> board);
+    game -> board = bestBoard;
+    //printf("bestscore = %f\n", bestScore);
     //printBoard(bestBoard);
-    game->cleared += clear(game->board);
+    game -> cleared += clear(game -> board);
 }
 
 void initializeTetris(struct tetris *game){
-    short* _ = calloc(21,sizeof(short));
-    game->board = _;
-    game->bag = newBag();
-    game->bagind = 0;
-    game->cleared = 0;
-    game->sVector = calloc(1,sizeof(float));
-    if (game->board ==NULL){
+    short* _ = calloc(21, sizeof(short));
+    game -> board = _;
+    game -> bag = newBag();
+    game -> bagind = 0;
+    game -> cleared = 0;
+    game -> sVector = calloc(1, sizeof(float));
+    if (game -> board ==NULL){
         printf("inittetris");
         exit(-1);
     }
 }
 
 void freeGame(struct tetris *game){
-    free(game->board);
-    free(game->bag);
-    free(game->sVector);
+    free(game -> board);
+    free(game -> bag);
+    free(game -> sVector);
     free(game);
 }
 
@@ -388,7 +388,7 @@ short holes(short* board){
 short wells(short* board){
     int cols[10];
     for (short i = 0; i < 10; i ++){
-        cols[i] = getCol(board,i);
+        cols[i] = getCol(board, i);
     }
     int occupiedTrips[10] = {0};
     int unoccupiedTrips[10] = {0};
@@ -416,10 +416,10 @@ short wells(short* board){
         }
     }
     for (short j = 1; j < 8; j++){
-        int compare = occupiedTrips[j-1] & unoccupiedTrips[j]& occupiedTrips[j+1];
-        for (short i = 0; i < 17;i++){
+        int compare = occupiedTrips[j-1] & unoccupiedTrips[j] & occupiedTrips[j+1];
+        for (short i = 0; i < 17; i++){
             if (compare & 1 << i){
-                //printf("well at %d",j);
+                //printf("well at %d", j);
                 wells += 1;
             }
         }
@@ -428,10 +428,10 @@ short wells(short* board){
 }
 
 float distance(short* board){
-    short lowest[10] = {19,19,19,19,19,19,19,19,19,19};
+    short lowest[10] = {19, 19, 19, 19, 19, 19, 19, 19, 19, 19};
     float distance = 0;
     for (short x = 0; x < 10; x++){
-        int col = getCol(board,x);
+        int col = getCol(board, x);
         for (short i = 0; i < 20; i++){
             if (col & 1 << (20-i)){
                 lowest[x] = 20 - i;
@@ -444,7 +444,7 @@ float distance(short* board){
     for (short x = 2; x < 8; x++){
         short curr = lowest[x];
         distance += (abs(curr - lowest[x-2]) + abs(curr - lowest[x-1]) + abs(curr - lowest[x+1]) + abs(curr - lowest[x+2]))/4;
-        //printf("distance = %d,%d,%d,%d ",abs(curr - lowest[x-2]) , abs(curr - lowest[x-1]) , abs(curr - lowest[x+1]) , abs(curr - lowest[x+2]));
+        //printf("distance = %d, %d, %d, %d ", abs(curr - lowest[x-2]) , abs(curr - lowest[x-1]) , abs(curr - lowest[x+1]) , abs(curr - lowest[x+2]));
     }
     //printf("\n");
     return distance;
@@ -466,7 +466,7 @@ short rowTransitions(short* board){
 short colTransitions(short* board){
     short transitions = 0;
     for (short i = 0; i < 10; i++){
-        int currCol = getCol(board,i);
+        int currCol = getCol(board, i);
         int curr = ~currCol & (currCol >> 1);
         for (short j = 0;j < 20; j++){
             if (curr & (1 << j)){
